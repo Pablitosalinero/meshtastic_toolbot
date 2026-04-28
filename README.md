@@ -6,14 +6,15 @@ This is an interactive Meshtastic bot developed in Python, managed via `uv` (Ult
 
 The easiest way to run the bot on Windows is by using the standalone portable executable (if available in the repository's Releases section). You don't need to install Python or any dependencies.
 
-1. **Download:** Go to the [Releases](../../releases) section of this repository and download the `main.exe` file.
-2. **Connect Device:** Plug your Meshtastic device into a USB port on your PC.
-3. **Run via Command Line:** Open a Terminal or Command Prompt in the folder where you downloaded the `.exe` and run it passing your configuration as arguments.
+1. **Download:** Go to the [Releases](../../releases) section of this repository and download the `mtb-windows.zip` file.
+2. **Extract:** Unzip the downloaded file to extract `mtb.exe`.
+3. **Connect Device:** Plug your Meshtastic device into a USB port on your PC.
+4. **Run via Command Line:** Open a Terminal or Command Prompt in the folder where you extracted the `.exe` and run it passing your configuration as arguments.
 
 ### Example Usage:
 
 ```cmd
-main.exe --location "My City, Country" --channel "test"
+mtb.exe --location "My City, Country" --channel "test"
 ```
 
 ### Available Command-Line Arguments:
@@ -72,10 +73,10 @@ The bot disassembles the incoming Meshtastic protobuf packet to extract the foll
 
 ## Building the Executable
 
-If you want to build the `main.exe` portable executable yourself, simply run:
+If you want to build the `mtb` portable executable yourself, simply run:
 
 ```bash
-uv run pyinstaller --onefile main.py
+uv run pyinstaller --onefile --name mtb main.py
 ```
 
 The `.exe` file will be generated inside the `dist/` folder.
