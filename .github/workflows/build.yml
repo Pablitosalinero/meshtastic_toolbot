@@ -36,6 +36,11 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Inject Version
+        shell: bash
+        run: |
+          python -c "import re; f=open('meshtastic_toolbot/__init__.py', 'r+', encoding='utf-8'); content=f.read(); txt=re.sub(r'__version__ = .*', '__version__ = \"1.0.${{ github.run_number }}\"', content); f.seek(0); f.write(txt); f.truncate(); f.close()"
+
       - name: Build Executable with PyInstaller
         run: uv run pyinstaller --onefile --name mtb main.py
 

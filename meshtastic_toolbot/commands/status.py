@@ -18,7 +18,8 @@ class StatusCommand(BaseCommand):
         else:
             uptime_str = f"{seconds}s"
 
-        reply = f"🟢 Bot Online\n"
+        my_name = self.interface.getShortName() or "Unknown"
+        reply = f"{my_name} Online 🟢\n"
         reply += f"Version: {__version__}\n"
         reply += f"Uptime: {uptime_str}\n"
         reply += f"Location: {self.config.location}"
