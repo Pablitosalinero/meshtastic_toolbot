@@ -8,7 +8,7 @@ class Config:
     def __init__(self, config_path=DEFAULT_CONFIG_FILE):
         self.config_path = config_path
         self.location = "Unknown Location"
-        self.channel = "test"
+        self.channel = "Test"
         self.port = None
         self.cooldown_seconds = 20
         self.log_file = "toolbot.db"

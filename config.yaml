@@ -1,4 +1,4 @@
-channel: test
+channel: Test
 cooldown_seconds: 20
 enabled_commands:
 - ping

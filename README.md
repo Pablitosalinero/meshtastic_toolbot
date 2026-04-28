@@ -14,12 +14,12 @@ The easiest way to run the bot on Windows is by using the standalone portable ex
 ### Example Usage:
 
 ```cmd
-mtb.exe --location "My City, Country" --channel "test" --cooldown 20
+mtb.exe --location "My City, Country" --channel "Test" --cooldown 20
 ```
 
 ### Available Command-Line Arguments:
 - `--location`: (Optional) Text indicating the bot's location. This will be included in the telemetry response. Default: `"Unknown Location"`.
-- `--channel`: (Optional) The channel name where the bot will listen for the `/ping` command. Default: `"test"`.
+- `--channel`: (Optional) The channel name where the bot will listen for the `/ping` command. Default: `"Test"`.
 - `--cooldown`: (Optional) Time in seconds that a user must wait before using a command again. Default: `20`.
 - `--port`: (Optional) Manually specify the Serial COM port (e.g., `COM3`). If not provided, the bot will auto-detect the connected device.
 
@@ -27,7 +27,7 @@ mtb.exe --location "My City, Country" --channel "test" --cooldown 20
 
 ## Node Configuration Requirements
 Before running the bot, your local Meshtastic node must be configured with a specific channel so the bot can listen and respond. By default, ensure you have set up:
-- **Channel Name:** `Test`
+- **Channel Name:** `Test` (This is the default and highly recommended channel for running bots, to avoid spamming the main public channels).
 - **PSK (Pre-Shared Key):** `Ag==` (Base64)
 
 *Note: The channel name can be overridden using the `--channel` CLI argument, but the key depends entirely on your Meshtastic app configuration.*
