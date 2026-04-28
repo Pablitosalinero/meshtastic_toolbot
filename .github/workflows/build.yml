@@ -1,0 +1,55 @@
+name: Build and Release
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build Executable with PyInstaller
+        run: uv run pyinstaller --onefile main.py
+
+      - name: Rename executable for specific OS
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            mv dist/main.exe dist/meshtastic-toolbot-windows.exe
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            mv dist/main dist/meshtastic-toolbot-macos
+          else
+            mv dist/main dist/meshtastic-toolbot-linux
+          fi
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: meshtastic-toolbot-${{ runner.os }}
+          path: dist/meshtastic-toolbot-*
+          retention-days: 7
