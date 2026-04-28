@@ -14,12 +14,13 @@ The easiest way to run the bot on Windows is by using the standalone portable ex
 ### Example Usage:
 
 ```cmd
-mtb.exe --location "My City, Country" --channel "test"
+mtb.exe --location "My City, Country" --channel "test" --cooldown 20
 ```
 
 ### Available Command-Line Arguments:
 - `--location`: (Optional) Text indicating the bot's location. This will be included in the telemetry response. Default: `"Unknown Location"`.
 - `--channel`: (Optional) The channel name where the bot will listen for the `/ping` command. Default: `"test"`.
+- `--cooldown`: (Optional) Time in seconds that a user must wait before using a command again. Default: `20`.
 - `--port`: (Optional) Manually specify the Serial COM port (e.g., `COM3`). If not provided, the bot will auto-detect the connected device.
 
 ---

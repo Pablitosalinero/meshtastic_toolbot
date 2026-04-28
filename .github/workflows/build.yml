@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
 
     steps:
@@ -42,7 +42,13 @@ jobs:
       - name: Package executable
         shell: bash
         run: |
-          cd dist && tar -a -c -f ../mtb-windows.zip mtb.exe
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            cd dist && tar -a -c -f ../mtb-windows.zip mtb.exe
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            cd dist && zip ../mtb-macos.zip mtb
+          else
+            cd dist && zip ../mtb-linux.zip mtb
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4

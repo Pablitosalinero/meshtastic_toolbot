@@ -1,0 +1,8 @@
+channel: test
+cooldown_seconds: 20
+enabled_commands:
+- ping
+- status
+location: Unknown Location
+log_file: toolbot.db
+port: null
