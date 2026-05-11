@@ -113,16 +113,17 @@ jobs:
             dist/*
           generate_release_notes: true
 
-      - name: Publish to GitHub Packages
-        shell: bash
-        run: |
-          uv run --with twine twine upload \
-            --repository-url https://pypi.pkg.github.com/${{ github.repository }}/ \
-            --username ${{ github.actor }} \
-            --password ${{ secrets.GITHUB_TOKEN }} \
-            dist/*
-
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
+
+      - name: Publish to GitHub Packages
+        shell: bash
+        continue-on-error: true # Si esto falla, no marcamos la Action como error
+        run: |
+          uv run --with twine twine upload \
+            --repository-url https://pypi.pkg.github.com/${{ github.repository_owner }}/index/ \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            dist/*
