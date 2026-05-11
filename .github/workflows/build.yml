@@ -116,10 +116,10 @@ jobs:
       - name: Publish to GitHub Packages
         shell: bash
         run: |
-          export UV_PUBLISH_URL=https://pypi.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}
-          export UV_PUBLISH_USERNAME=${{ github.actor }}
-          export UV_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          uv publish
+          uv publish \
+            --publish-url https://pypi.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
