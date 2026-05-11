@@ -117,7 +117,7 @@ jobs:
         shell: bash
         run: |
           uv publish \
-            --publish-url https://pypi.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }} \
+            --publish-url https://pypi.pkg.github.com/${{ github.repository_owner }}/ \
             --username ${{ github.actor }} \
             --password ${{ secrets.GITHUB_TOKEN }}
 
