@@ -1,15 +1,17 @@
-name: Build and Release
+name: Build, Release and Publish
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-  push:
+  pull_request:
     branches:
       - main
 
 permissions:
   contents: write
+  packages: write
+  id-token: write
 
 jobs:
   build:
@@ -39,10 +41,14 @@ jobs:
       - name: Inject Version
         shell: bash
         run: |
-          python -c "import re; f=open('meshtastic_toolbot/__init__.py', 'r+', encoding='utf-8'); content=f.read(); txt=re.sub(r'__version__ = .*', '__version__ = \"1.0.${{ github.run_number }}\"', content); f.seek(0); f.write(txt); f.truncate(); f.close()"
+          VERSION="1.0.${{ github.run_number }}"
+          # Update __init__.py
+          python -c "import re; f=open('meshtastic_toolbot/__init__.py', 'r+', encoding='utf-8'); content=f.read(); txt=re.sub(r'__version__ = .*', '__version__ = \"$VERSION\"', content); f.seek(0); f.write(txt); f.truncate(); f.close()"
+          # Update pyproject.toml
+          python -c "import re; f=open('pyproject.toml', 'r+', encoding='utf-8'); content=f.read(); txt=re.sub(r'version = .*', 'version = \"$VERSION\"', content); f.seek(0); f.write(txt); f.truncate(); f.close()"
 
       - name: Build Executable with PyInstaller
-        run: uv run pyinstaller --onefile --name mtb main.py
+        run: uv run python -m PyInstaller --onefile --name mtb main.py
 
       - name: Package executable
         shell: bash
@@ -62,24 +68,57 @@ jobs:
           path: mtb-*.zip
           retention-days: 7
 
-  release:
-    name: Create GitHub Release
+  release-and-publish:
+    name: Release and Publish Package
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.12
+
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
 
-      - name: Create Release
+      - name: Inject Version (for packaging)
+        shell: bash
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          python -c "import re; f=open('pyproject.toml', 'r+', encoding='utf-8'); content=f.read(); txt=re.sub(r'version = .*', 'version = \"$VERSION\"', content); f.seek(0); f.write(txt); f.truncate(); f.close()"
+
+      - name: Build Python Package
+        run: uv build
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v1.0.${{ github.run_number }}"
           name: "Release v1.0.${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: artifacts/*
+          files: |
+            artifacts/*
+            dist/*
           generate_release_notes: true
+
+      - name: Publish to GitHub Packages
+        shell: bash
+        run: |
+          export UV_PUBLISH_URL=https://pypi.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}
+          export UV_PUBLISH_USERNAME=${{ github.actor }}
+          export UV_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          uv publish
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
