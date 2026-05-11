@@ -47,8 +47,11 @@ jobs:
           # Update pyproject.toml
           python -c "import re; f=open('pyproject.toml', 'r+', encoding='utf-8'); content=f.read(); txt=re.sub(r'version = .*', 'version = \"$VERSION\"', content); f.seek(0); f.write(txt); f.truncate(); f.close()"
 
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+
       - name: Build Executable with PyInstaller
-        run: uv run python -m PyInstaller --onefile --name mtb main.py
+        run: uv run pyinstaller --onefile --name mtb main.py
 
       - name: Package executable
         shell: bash
