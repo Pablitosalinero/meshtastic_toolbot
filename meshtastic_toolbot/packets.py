@@ -27,6 +27,10 @@ def get_channel_name(interface, channel_index):
             channel_obj = interface.localNode.channels[channel_index]
             if hasattr(channel_obj, 'settings') and hasattr(channel_obj.settings, 'name'):
                 return channel_obj.settings.name
+        elif channel_index == 0: # Check if it's index 0 even if it fails the list check
+            channel_obj = interface.localNode.channels[0]
+            if hasattr(channel_obj, 'settings') and hasattr(channel_obj.settings, 'name'):
+                return channel_obj.settings.name
     return ""
 
 def get_telemetry_metrics(packet):
@@ -37,7 +41,7 @@ def get_telemetry_metrics(packet):
     snr = packet.get('rxSnr', 'N/A')
     hop_start = packet.get('hopStart', 'N/A')
     hop_limit = packet.get('hopLimit', 'N/A')
-    return rssi, snr, hop_start, hop_limit
+    return (rssi, snr, hop_start, hop_limit)
 
 def get_node_name(interface, node_num):
     """
@@ -54,24 +58,33 @@ def get_node_name(interface, node_num):
 
 def identify_relay(packet, interface, hop_start, hop_limit):
     """
-    Identifies the relay node name based on the 1-byte truncated relayNode packet header.
+    Identifies all possible relay node names based on the 1-byte truncated relayNode packet header.
+    Returns (relay_hex, relay_names_list, best_guess_id)
     """
     relay_byte = packet.get('relayNode')
-    real_relay_id = None
-    
+    relay_names = []
+    relay_hex = ""
+    best_id = None
+
     # If hops taken is 0, it came direct and the immediate relay is the original sender (from)
     if isinstance(hop_start, int) and isinstance(hop_limit, int) and hop_start == hop_limit:
-        real_relay_id = packet.get('from')
+        sender_id = packet.get('from')
+        relay_names.append(get_node_name(interface, sender_id))
+        relay_hex = "Direct"
+        best_id = sender_id
     elif relay_byte is not None and hasattr(interface, 'nodes'):
-        # If routed, Meshtastic trims Relay ID to 1 byte (0-255). We must find a match in the DB
+        relay_hex = f"{relay_byte:02x}*"
+        # Find ALL matches in the node DB
         for _, n in interface.nodes.items():
             node_num = n.get('num')
             if node_num and (node_num & 0xFF) == relay_byte:
-                real_relay_id = node_num
-                break
+                relay_names.append(get_node_name(interface, node_num))
+                if best_id is None: best_id = node_num
                 
-    if not real_relay_id:
-        real_relay_id = packet.get('from')
+    if not relay_names:
+        sender_id = packet.get('from')
+        relay_names.append(get_node_name(interface, sender_id))
+        relay_hex = "Direct?"
+        best_id = sender_id
 
-    relay_name = get_node_name(interface, real_relay_id)
-    return real_relay_id, relay_name
+    return (relay_hex, relay_names, best_id)
