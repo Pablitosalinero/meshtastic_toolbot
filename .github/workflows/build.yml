@@ -116,8 +116,7 @@ jobs:
       - name: Publish to GitHub Packages
         shell: bash
         run: |
-          uv pip install twine
-          uv run twine upload \
+          uv run --with twine twine upload \
             --repository-url https://pypi.pkg.github.com/${{ github.repository }}/ \
             --username ${{ github.actor }} \
             --password ${{ secrets.GITHUB_TOKEN }} \
